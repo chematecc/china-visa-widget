@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>China Visa Check widget: example</title>
+</head>
+<body>
+  <h1>Do you need a visa for China?</h1>
+
+  <!-- The widget. Change the address for another language, a starting passport or dark colours (see README). -->
+  <iframe src="https://chinavisacheck.com/china-visa/embed" title="China Visa Check" width="100%" height="320" style="border:0;max-width:520px" loading="lazy"></iframe>
+  <!-- Lets the widget set its own height -->
+  <script>addEventListener("message",function(e){if(e.origin==="https://chinavisacheck.com"&&e.data&&e.data.cvcH)document.querySelectorAll('iframe[src^="https://chinavisacheck.com/"]').forEach(function(f){if(f.contentWindow===e.source)f.style.height=e.data.cvcH+"px"})})</script>
+  <p><a href="https://chinavisacheck.com/china-visa/">China Visa Check</a></p>
+</body>
+</html>
