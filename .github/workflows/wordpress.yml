@@ -1,0 +1,40 @@
+name: WordPress plugin
+# Tests the plugin in wordpress/china-visa-check inside a real WordPress (wp-env, latest WordPress and its PHP), runs
+# WordPress.org's own Plugin Check on it (the tool the plugin directory reviews with), and keeps the zip to upload to the
+# directory as an artifact of the run.
+on:
+  push:
+    paths: ['wordpress/**', '.github/workflows/wordpress.yml']
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults: { run: { working-directory: wordpress } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: PHP syntax
+        run: for f in china-visa-check/*.php tests/*.php; do php -l "$f"; done
+      - name: Start WordPress
+        run: npx -y @wordpress/env@latest start
+      - name: Shortcode, block and widget inside WordPress
+        run: npx -y @wordpress/env@latest run cli wp eval-file wp-content/cvc-tests/smoke.php
+      - name: Front end, the checker and its height script on published posts
+        run: |
+          html=$(curl -s "http://localhost:8888/?name=cvc-shortcode")
+          echo "$html" | grep -q 'chinavisacheck.com/china-visa/embed#jp' || { echo "no checker on the post"; exit 1; }
+          echo "$html" | grep -q 'e.data.cvcH' || { echo "no height script"; exit 1; }
+          html=$(curl -s "http://localhost:8888/?name=cvc-block")
+          echo "$html" | grep -q 'chinavisacheck.com/china-visa/embed#kr' || { echo "no checker from the block"; exit 1; }
+          echo "front end ok"
+      - name: WordPress.org Plugin Check
+        run: |
+          npx -y @wordpress/env@latest run cli wp plugin check china-visa-check --format=table 2>&1 | tee check.txt
+          if grep -q "ERROR" check.txt; then echo "::error::Plugin Check found errors"; exit 1; fi
+      - name: Zip for the plugin directory
+        run: zip -qr ../china-visa-check.zip china-visa-check
+      - uses: actions/upload-artifact@v4
+        with: { name: china-visa-check-plugin, path: china-visa-check.zip }

@@ -1,0 +1,5 @@
+{
+	"core": null,
+	"plugins": [ "./china-visa-check", "https://downloads.wordpress.org/plugin/plugin-check.latest-stable.zip" ],
+	"mappings": { "wp-content/cvc-tests": "./tests" }
+}
