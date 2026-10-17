@@ -24,10 +24,10 @@ jobs:
         run: npx -y @wordpress/env@latest run cli wp eval-file wp-content/cvc-tests/smoke.php
       - name: Front end, the checker and its height script on published posts
         run: |
-          html=$(curl -s "http://localhost:8888/?name=cvc-shortcode")
+          html=$(curl -sL "http://localhost:8888/?name=cvc-shortcode")
           echo "$html" | grep -q 'chinavisacheck.com/china-visa/embed#jp' || { echo "no checker on the post"; exit 1; }
           echo "$html" | grep -q 'e.data.cvcH' || { echo "no height script"; exit 1; }
-          html=$(curl -s "http://localhost:8888/?name=cvc-block")
+          html=$(curl -sL "http://localhost:8888/?name=cvc-block")
           echo "$html" | grep -q 'chinavisacheck.com/china-visa/embed#kr' || { echo "no checker from the block"; exit 1; }
           echo "front end ok"
       - name: WordPress.org Plugin Check
