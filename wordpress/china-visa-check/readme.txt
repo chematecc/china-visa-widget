@@ -72,7 +72,6 @@ The checker loads only when it scrolls into view (lazy loading) and adds one sho
 == Screenshots ==
 
 1. The checker in a blog post: the visitor picks a passport and sees the answer and the date it was checked.
-2. Block settings: language, passport shown first, colours and the optional link.
 
 == Changelog ==
 
