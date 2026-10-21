@@ -39,7 +39,7 @@ Without a starting passport the widget guesses from the visitor's browser langua
 
 | Platform | Steps |
 |---|---|
-| WordPress | Install the plugin in [`wordpress/china-visa-check`](wordpress/china-visa-check) (block, widget and `[china_visa_check]` shortcode; submitted to the WordPress.org directory), or add a **Custom HTML** block and paste |
+| WordPress | Install the plugin in [`wordpress/china-visa-check`](wordpress/china-visa-check) (block, widget and `[china_visa_check]` shortcode; in the WordPress.org directory: https://wordpress.org/plugins/china-visa-check/), or add a **Custom HTML** block and paste |
 | Wix | Add Elements → Embed Code → **Embed HTML** → paste |
 | Squarespace | Add a **Code** block → paste |
 | Webflow | Add an **Embed** element → paste |
