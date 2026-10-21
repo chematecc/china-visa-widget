@@ -1,0 +1,45 @@
+name: WordPress.org deploy
+# Publishes the plugin in wordpress/china-visa-check to the WordPress.org Plugin Directory (Subversion) when a tag
+# wp-vX.Y.Z is pushed, with the directory's icon, banners and screenshot from wordpress/assets. WordPress.org cannot
+# upload code for us; this is the only way a version reaches https://wordpress.org/plugins/china-visa-check/.
+#
+#   1. Raise "Version:" in china-visa-check.php and "Stable tag:" in readme.txt to X.Y.Z (and add a changelog entry).
+#   2. Push to main and wait for the "WordPress plugin" check to pass.
+#   3. git tag wp-vX.Y.Z && git push origin wp-vX.Y.Z
+#
+# Needs the repository secret SVN_PASSWORD: WordPress.org > Profile > Account & Security > SVN credentials
+# (the SVN user name is chinavisacheck, which is public). Without it the job stops before touching Subversion.
+on:
+  push:
+    tags: ['wp-v*']
+  workflow_dispatch:
+    inputs:
+      version: { description: 'Version already in main, e.g. 1.0.0 (publishes main as that version)', required: true }
+permissions: { contents: read }
+concurrency: { group: wordpress-org, cancel-in-progress: false }
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: The version in the tag is the version in the plugin
+        id: v
+        env: { TAG: '${{ github.ref_name }}', INPUT: '${{ inputs.version }}', SVN_PASSWORD: '${{ secrets.SVN_PASSWORD }}' }
+        run: |
+          if [ -z "$SVN_PASSWORD" ]; then echo "::error::The repository secret SVN_PASSWORD is not set (see the top of this file)"; exit 1; fi
+          v="${INPUT:-${TAG#wp-v}}"
+          grep -Eq "^ \* Version: +$v$" wordpress/china-visa-check/china-visa-check.php || { echo "::error::china-visa-check.php is not version $v"; exit 1; }
+          grep -q "^Stable tag: $v$" wordpress/china-visa-check/readme.txt || { echo "::error::readme.txt Stable tag is not $v"; exit 1; }
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+      - name: Subversion
+        run: command -v svn || (sudo apt-get update -qq && sudo apt-get install -y -qq subversion > /dev/null)
+      - name: Commit to the Plugin Directory
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: chinavisacheck
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: china-visa-check
+          VERSION: ${{ steps.v.outputs.version }}
+          BUILD_DIR: wordpress/china-visa-check
+          ASSETS_DIR: wordpress/assets
